@@ -20,7 +20,7 @@ namespace TestPOC.Controllers
             UdpClient udpClient = new UdpClient(8083);
           
                 UdpClient client = new UdpClient();
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("10.170.84.163"), 8083);
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("10.0.2.15"), 8083);
                 byte[] bytes = Encoding.ASCII.GetBytes("Send Data....");
                 client.Send(bytes, bytes.Length, ip);
 
