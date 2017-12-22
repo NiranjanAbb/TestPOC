@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UDP;
@@ -12,37 +15,30 @@ namespace TestPOC.Controllers
     {
         // GET api/values
         [HttpGet]
-        public string Get()
+        public List<string> Get()
         {
-            UDPer1 obj = new UDPer1();
-            obj.Start();
-            obj.Send("Hi from ubuntu");
-            return "Done";
-        }
+            UdpClient udpClient = new UdpClient(8083);
+          
+                UdpClient client = new UdpClient();
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("10.170.84.163"), 8083);
+                byte[] bytes = Encoding.ASCII.GetBytes("Send Data....");
+                client.Send(bytes, bytes.Length, ip);
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+                //IPEndPoint object will allow us to read datagrams sent from any source.
+                IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+                // Blocks until a message returns on this socket from a remote host.
+                Byte[] receiveBytes = udpClient.Receive(ref RemoteIpEndPoint);
+                string returnData = Encoding.ASCII.GetString(receiveBytes);
+                List<string> someStringList = new List<string>();
+                someStringList.Add("This is the message you received:- " + returnData.ToString());
+                someStringList.Add("This message was sent from:- " +
+                                            RemoteIpEndPoint.Address.ToString() +
+                                            " on their port number " +
+                                            RemoteIpEndPoint.Port.ToString());
+                udpClient.Close();
+                client.Close();
+                return someStringList;
         }
     }
 }
